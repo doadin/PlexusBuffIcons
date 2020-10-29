@@ -1,0 +1,34 @@
+language: shell
+os: linux
+dist: focal
+
+jobs:
+  include:
+    - stage: Run luacheck
+      if: tag IS NOT present
+      addons:
+        apt:
+         packages:
+           - luarocks
+      before_install: sudo apt-get update
+      install:
+      - sudo apt-get install curl -y
+      - luarocks install --local luacheck
+      script: /home/travis/.luarocks/bin/luacheck . --no-color -q
+    - stage: Create Retail package
+      if: tag IS present
+      before_install: sudo apt-get update
+      install:
+      - sudo apt-get install curl -y
+      script: curl -s https://raw.githubusercontent.com/doadin/packager/master/release.sh | bash
+    - stage: Create Classic package
+      if: tag IS present
+      before_install: sudo apt-get update
+      install:
+      - sudo apt-get install curl -y
+      script: curl -s https://raw.githubusercontent.com/doadin/packager/master/release.sh | bash -s -- -g classic
+
+notifications:
+ email:
+   on_success: never
+   on_failure: always
