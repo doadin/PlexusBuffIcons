@@ -1,0 +1,11 @@
+## Interface: 80000
+## Title: GridBuffIcons
+
+## Author: warbaby @ 爱不易
+## Grid Author: Pastamancer & Maia
+## Dependencies: Grid
+
+localization.zhCN.lua
+localization.zhTW.lua
+localization.koKR.lua
+GridBuffIcons.lua
