@@ -64,8 +64,8 @@ local options = {
         enabled = {
             order = 40, width = "double",
             type = "toggle",
-            name = L["启用模块"],
-            desc = L["启用/停用模块，会在框体外部(可设置)显示所有的增益或负面状态图标。"],
+            name = L["Enable"],
+            desc = L["Enabling/disabling the module will display all buff or debuff icons."],
             get = function()
                 return PlexusBuffIcons.db.profile.enabled;
             end,
