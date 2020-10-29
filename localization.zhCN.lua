@@ -1,9 +1,9 @@
 if GetLocale() ~= "zhCN" then return end
-BINDING_HEADER_GRIDBUFFICONS = "Grid增益减益图标";
+BINDING_HEADER_GRIDBUFFICONS = "Plexus增益减益图标";
 BINDING_NAME_GRIDBUFFICONS_TOGGLE_BUFF = "切换显示增益或减益";
 BINDING_NAME_GRIDBUFFICONS_TOGGLE_BUFF_FILTER = "切换显示全部或仅仅可施放(可移除)的状态";
 
-GridBuffIconsLocale = {
+PlexusBuffIconsLocale = {
     ["Buff Icons"] = "额外状态图标",
 
     ["Show Buff instead of Debuff"] = "显示增益状态",
@@ -42,7 +42,7 @@ GridBuffIconsLocale = {
     ["HORIZONTAL"] = "水平",
 
     ["Anchor Point"] = "图标位置",
-    ["Anchor point of the first icon."] = "第一个图标相对Grid框架的位置",
+    ["Anchor point of the first icon."] = "第一个图标相对Plexus框架的位置",
     ["TOPRIGHT"] = "右上角",
     ["TOPLEFT"] = "左上角",
     ["BOTTOMLEFT"] = "左下角",

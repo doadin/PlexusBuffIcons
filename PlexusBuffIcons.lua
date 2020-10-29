@@ -2,21 +2,21 @@ local UnitAura, UnitGUID, pairs = UnitAura, UnitGUID, pairs
 
 local MAX_BUFFS = 6
 
-local L = setmetatable(GridBuffIconsLocale or {}, {__index = function(t, k) t[k] = k return k end})
+local L = setmetatable(PlexusBuffIconsLocale or {}, {__index = function(t, k) t[k] = k return k end})
 
-local GridRoster = Grid:GetModule("GridRoster")
-local GridFrame = Grid:GetModule("GridFrame")
-local GridBuffIcons = Grid:NewModule("GridBuffIcons", "AceBucket-3.0")
+local PlexusRoster = Plexus:GetModule("PlexusRoster")
+local PlexusFrame = Plexus:GetModule("PlexusFrame")
+local PlexusBuffIcons = Plexus:NewModule("PlexusBuffIcons", "AceBucket-3.0")
 
-local function WithAllGridFrames(func)
-    for _, frame in pairs(GridFrame.registeredFrames) do
+local function WithAllPlexusFrames(func)
+    for _, frame in pairs(PlexusFrame.registeredFrames) do
         func(frame)
     end
 end
 
-GridBuffIcons.menuName = L["Buff Icons"]
+PlexusBuffIcons.menuName = L["Buff Icons"]
 
-GridBuffIcons.defaultDB = {
+PlexusBuffIcons.defaultDB = {
     enabled = true,
     iconsize = 9,
 	offsetx = -1,
@@ -47,18 +47,18 @@ GridBuffIcons.defaultDB = {
 
 local options = {
     type = "group",
-    inline = GridFrame.options.args.bar.inline,
+    inline = PlexusFrame.options.args.bar.inline,
     name = L["Buff Icons"],
     desc = L["Buff Icons"],
     order = 1200,
     get = function(info)
         local k = info[#info]
-        return GridBuffIcons.db.profile[k]
+        return PlexusBuffIcons.db.profile[k]
     end,
     set = function(info, v)
         local k = info[#info]
-        GridBuffIcons.db.profile[k] = v
-        GridBuffIcons:UpdateAllUnitsBuffs()
+        PlexusBuffIcons.db.profile[k] = v
+        PlexusBuffIcons:UpdateAllUnitsBuffs()
     end,
     args = {
         enabled = {
@@ -67,14 +67,14 @@ local options = {
             name = L["启用模块"],
             desc = L["启用/停用模块，会在框体外部(可设置)显示所有的增益或负面状态图标。"],
             get = function()
-                return GridBuffIcons.db.profile.enabled;
+                return PlexusBuffIcons.db.profile.enabled;
             end,
             set = function(_, v)
-                GridBuffIcons.db.profile.enabled = v;
-                if v and not GridBuffIcons.enabled then
-                    GridBuffIcons:OnEnable()
-                elseif not v and GridBuffIcons.enabled then
-                    GridBuffIcons:OnDisable()
+                PlexusBuffIcons.db.profile.enabled = v;
+                if v and not PlexusBuffIcons.enabled then
+                    PlexusBuffIcons:OnEnable()
+                elseif not v and PlexusBuffIcons.enabled then
+                    PlexusBuffIcons:OnDisable()
                 end
             end,
         },
@@ -88,7 +88,7 @@ local options = {
             order = 51, width = "single",
             type = "toggle",
             name = L["Only Mine"],
-            disabled = function(info) return not GridBuffIcons.db.profile.showbuff end,
+            disabled = function(info) return not PlexusBuffIcons.db.profile.showbuff end,
         },
         bufffilter = {
             order = 52, width = "double",
@@ -115,10 +115,10 @@ local options = {
             max = 16,
             min = 5,
             step = 1,
-            get = function () return GridBuffIcons.db.profile.iconsize end,
+            get = function () return PlexusBuffIcons.db.profile.iconsize end,
             set = function(_, v)
-                GridBuffIcons.db.profile.iconsize = v;
-                WithAllGridFrames(function (f) GridBuffIcons.ResetBuffIconSize(f) end)
+                PlexusBuffIcons.db.profile.iconsize = v;
+                WithAllPlexusFrames(function (f) PlexusBuffIcons.ResetBuffIconSize(f) end)
             end
         },
         alpha = {
@@ -129,10 +129,10 @@ local options = {
             max = 1,
             min = 0.1,
             step = 0.1,
-            get = function () return GridBuffIcons.db.profile.alpha end,
+            get = function () return PlexusBuffIcons.db.profile.alpha end,
             set = function(_, v)
-                GridBuffIcons.db.profile.alpha = v;
-                WithAllGridFrames(function (f) GridBuffIcons.ResetBuffIconAlpha(f) end)
+                PlexusBuffIcons.db.profile.alpha = v;
+                WithAllPlexusFrames(function (f) PlexusBuffIcons.ResetBuffIconAlpha(f) end)
             end
         },
         offsetx = {
@@ -143,10 +143,10 @@ local options = {
             max = 20,
             min = -20,
             step = 1,
-            get = function () return GridBuffIcons.db.profile.offsetx end,
+            get = function () return PlexusBuffIcons.db.profile.offsetx end,
             set = function(_, v)
-                GridBuffIcons.db.profile.offsetx = v;
-                WithAllGridFrames(function (f) GridBuffIcons.ResetBuffIconPos(f) end)
+                PlexusBuffIcons.db.profile.offsetx = v;
+                WithAllPlexusFrames(function (f) PlexusBuffIcons.ResetBuffIconPos(f) end)
             end
         },
         offsety = {
@@ -157,10 +157,10 @@ local options = {
             max = 20,
             min = -20,
             step = 1,
-            get = function () return GridBuffIcons.db.profile.offsety end,
+            get = function () return PlexusBuffIcons.db.profile.offsety end,
             set = function(_, v)
-                GridBuffIcons.db.profile.offsety = v;
-                WithAllGridFrames(function (f) GridBuffIcons.ResetBuffIconPos(f) end)
+                PlexusBuffIcons.db.profile.offsety = v;
+                WithAllPlexusFrames(function (f) PlexusBuffIcons.ResetBuffIconPos(f) end)
             end
         },
         iconnum = {
@@ -181,11 +181,11 @@ local options = {
             min = 0,
             step = 1,
             get = function()
-                return GridBuffIcons.db.profile.iconperrow;
+                return PlexusBuffIcons.db.profile.iconperrow;
             end,
             set = function(_, v)
-                GridBuffIcons.db.profile.iconperrow = v;
-                WithAllGridFrames(function (f) GridBuffIcons.ResetBuffIconPos(f) end);
+                PlexusBuffIcons.db.profile.iconperrow = v;
+                WithAllPlexusFrames(function (f) PlexusBuffIcons.ResetBuffIconPos(f) end);
             end,
         },
         orientation = {
@@ -194,11 +194,11 @@ local options = {
             name = L["Orientation of Icon"],
             desc = L["Set icons list orientation."],
             get = function ()
-                return GridBuffIcons.db.profile.orientation
+                return PlexusBuffIcons.db.profile.orientation
             end,
             set = function(_, v)
-                GridBuffIcons.db.profile.orientation = v
-                WithAllGridFrames(function (f) GridBuffIcons.ResetBuffIconPos(f) end)
+                PlexusBuffIcons.db.profile.orientation = v
+                WithAllPlexusFrames(function (f) PlexusBuffIcons.ResetBuffIconPos(f) end)
             end,
             values ={["HORIZONTAL"] = L["HORIZONTAL"], ["VERTICAL"] = L["VERTICAL"]}
         },
@@ -208,11 +208,11 @@ local options = {
             name = L["Anchor Point"],
             desc = L["Anchor point of the first icon."],
             get = function ()
-                return GridBuffIcons.db.profile.anchor
+                return PlexusBuffIcons.db.profile.anchor
             end,
             set = function(_, v)
-                GridBuffIcons.db.profile.anchor = v
-                WithAllGridFrames(function (f) GridBuffIcons.ResetBuffIconPos(f) end)
+                PlexusBuffIcons.db.profile.anchor = v
+                WithAllPlexusFrames(function (f) PlexusBuffIcons.ResetBuffIconPos(f) end)
             end,
             values ={["TOPRIGHT"] = L["TOPRIGHT"], ["TOPLEFT"] = L["TOPLEFT"], ["BOTTOMLEFT"] = L["BOTTOMLEFT"], ["BOTTOMRIGHT"] = L["BOTTOMRIGHT"]}
         },
@@ -223,12 +223,12 @@ local options = {
             name =  L["Buffs/Debuffs Never Shown"],
             desc =  L["Buff or Debuff names never to show, seperated by ','"],
             get = function()
-                return GridBuffIcons.db.profile.namefilter;
+                return PlexusBuffIcons.db.profile.namefilter;
             end,
             set = function(_, v)
-                GridBuffIcons.db.profile.namefilter = v;
-                GridBuffIcons:SetNameFilter(true)
-                GridBuffIcons:UpdateAllUnitsBuffs();
+                PlexusBuffIcons.db.profile.namefilter = v;
+                PlexusBuffIcons:SetNameFilter(true)
+                PlexusBuffIcons:UpdateAllUnitsBuffs();
             end,
         },
         --[[ --8.0 removed because performance problem
@@ -239,26 +239,26 @@ local options = {
             name =  L["Buffs/Debuffs Always Shown"],
             desc =  L["Buff or Debuff names which will always be shown if applied, seperated by ','"],
             get = function()
-                return GridBuffIcons.db.profile.nameforce;
+                return PlexusBuffIcons.db.profile.nameforce;
             end,
             set = function(_, v)
-                GridBuffIcons.db.profile.nameforce = v;
-                GridBuffIcons:SetNameFilter(false)
-                GridBuffIcons:UpdateAllUnitsBuffs();
+                PlexusBuffIcons.db.profile.nameforce = v;
+                PlexusBuffIcons:SetNameFilter(false)
+                PlexusBuffIcons:UpdateAllUnitsBuffs();
             end,
         },
         --]]
     }
 }
 
-(Grid or GridFrame).options.args.GridBuffIcons = options;
+(Plexus or PlexusFrame).options.args.PlexusBuffIcons = options;
 
-function GridBuffIcons.InitializeFrame(gridFrameObj, f)
+function PlexusBuffIcons.InitializeFrame(plexusFrameObj, f)
     if not f.BuffIcons then
         f.BuffIcons = {};
         for i=1, MAX_BUFFS do
             local bar = f.Bar or f.indicators.bar
-            local bg = CreateFrame("Frame", "$parentGridBuffIcon"..i, bar)
+            local bg = CreateFrame("Frame", "$parentPlexusBuffIcon"..i, bar)
             bg:SetFrameLevel(bar:GetFrameLevel() + 3)
             bg.icon = bg:CreateTexture("$parentTex", "OVERLAY");
             bg.icon:SetTexCoord(0.04, 0.96, 0.04, 0.96)
@@ -272,26 +272,26 @@ function GridBuffIcons.InitializeFrame(gridFrameObj, f)
             f.BuffIcons[i] = bg
         end
 
-        GridBuffIcons.ResetBuffIconSize(f);
-        GridBuffIcons.ResetBuffIconPos(f);
-        GridBuffIcons.ResetBuffIconAlpha(f);
+        PlexusBuffIcons.ResetBuffIconSize(f);
+        PlexusBuffIcons.ResetBuffIconPos(f);
+        PlexusBuffIcons.ResetBuffIconAlpha(f);
     end
 end
 
-function GridBuffIcons.ResetBuffIconSize(f)
+function PlexusBuffIcons.ResetBuffIconSize(f)
     if(f.BuffIcons) then
         for _,v in pairs(f.BuffIcons) do
-            v:SetWidth(GridBuffIcons.db.profile.iconsize);
-            v:SetHeight(GridBuffIcons.db.profile.iconsize);
+            v:SetWidth(PlexusBuffIcons.db.profile.iconsize);
+            v:SetHeight(PlexusBuffIcons.db.profile.iconsize);
         end
     end
 end
 
-function GridBuffIcons.ResetBuffIconPos(f)
+function PlexusBuffIcons.ResetBuffIconPos(f)
     local icons = f.BuffIcons
     local xadjust = 1;
     local yadjust = 1;
-    local p = GridBuffIcons.db.profile;
+    local p = PlexusBuffIcons.db.profile;
     if(string.find(p.anchor, "BOTTOM")) then yadjust = -1; end;
     if(string.find(p.anchor, "LEFT")) then xadjust = -1; end;
     if(icons) then
@@ -348,27 +348,27 @@ function GridBuffIcons.ResetBuffIconPos(f)
     end
 end
 
-function GridBuffIcons.ResetBuffIconAlpha(f)
+function PlexusBuffIcons.ResetBuffIconAlpha(f)
     if(f.BuffIcons) then
         for k,v in pairs(f.BuffIcons) do
-            v:SetAlpha( GridBuffIcons.db.profile.alpha );
+            v:SetAlpha( PlexusBuffIcons.db.profile.alpha );
         end
     end
 end
 
-function GridBuffIcons:OnInitialize()
+function PlexusBuffIcons:OnInitialize()
     self.super.OnInitialize(self)
-    WithAllGridFrames(function(f) GridBuffIcons.InitializeFrame(nil, f); end)
-    hooksecurefunc(GridFrame, "InitializeFrame", self.InitializeFrame);
+    WithAllPlexusFrames(function(f) PlexusBuffIcons.InitializeFrame(nil, f); end)
+    hooksecurefunc(PlexusFrame, "InitializeFrame", self.InitializeFrame);
 end
 
-function GridBuffIcons:OnEnable()
-    if not GridBuffIcons.db.profile.enabled then return end
+function PlexusBuffIcons:OnEnable()
+    if not PlexusBuffIcons.db.profile.enabled then return end
     self.enabled = true
     self:RegisterEvent("UNIT_AURA")
     if(not self.bucket) then
         self:Debug("registering bucket");
-        self.bucket = self:RegisterBucketMessage("Grid_UpdateLayoutSize", 1, "UpdateAllUnitsBuffs")
+        self.bucket = self:RegisterBucketMessage("Plexus_UpdateLayoutSize", 1, "UpdateAllUnitsBuffs")
     end
     self:SetNameFilter(true)
     self:SetNameFilter(false)
@@ -376,7 +376,7 @@ function GridBuffIcons:OnEnable()
     self:UpdateAllUnitsBuffs();
 end
 
-function GridBuffIcons:OnDisable()
+function PlexusBuffIcons:OnDisable()
     self.enabled = nil
     self:UnregisterEvent("UNIT_AURA")
     if(self.bucket) then
@@ -384,21 +384,21 @@ function GridBuffIcons:OnDisable()
         self:UnregisterBucket(self.bucket);
         self.bucket = nil;
     end
-    for k,v in pairs(GridFrame.registeredFrames) do
+    for k,v in pairs(PlexusFrame.registeredFrames) do
         if(v.BuffIcons) then
             for i=1, MAX_BUFFS do v.BuffIcons[i]:Hide() end
         end
     end
 end
 
-function GridBuffIcons:SetNameFilter(filterOrForce)
+function PlexusBuffIcons:SetNameFilter(filterOrForce)
     local setting, temp
     if filterOrForce then
-        setting = GridBuffIcons.db.profile.namefilter
+        setting = PlexusBuffIcons.db.profile.namefilter
         self.namefilter = self.namefilter or {}
         temp = self.namefilter
     else
-        setting = GridBuffIcons.db.profile.nameforce
+        setting = PlexusBuffIcons.db.profile.nameforce
         self.nameforce = self.nameforce or {}
         temp = self.nameforce
     end
@@ -409,7 +409,7 @@ function GridBuffIcons:SetNameFilter(filterOrForce)
     end
 end
 
-function GridBuffIcons:Reset()
+function PlexusBuffIcons:Reset()
     self.super.Reset(self)
     self:SetNameFilter(true)
     self:SetNameFilter(false)
@@ -429,11 +429,11 @@ end
 local function updateFrame(v)
     local i = 1
     local n = 1
-    local setting = GridBuffIcons.db.profile
+    local setting = PlexusBuffIcons.db.profile
     local showbuff = setting.showbuff
 
     --[[ --8.0 removed because of performance problem
-    for name, _ in pairs(GridBuffIcons.nameforce) do
+    for name, _ in pairs(PlexusBuffIcons.nameforce) do
         local name, rank, icon, count, debuffType, duration, expires, caster, isStealable, _, spellID = UnitAura(v.unit, name);
         if name then
             showBuffIcon(v, n, setting, icon, expires, duration)
@@ -451,7 +451,7 @@ local function updateFrame(v)
         local name, icon, count, debuffType, duration, expires, caster, isStealable, _, spellID = UnitAura(v.unit, i, filter);
         if (name) then
             if not showbuff or (duration and duration > 0 or setting.bufffilter) then  --ignore mount, world buff etc
-                if not GridBuffIcons.namefilter[name] and not GridBuffIcons.nameforce[name] then
+                if not PlexusBuffIcons.namefilter[name] and not PlexusBuffIcons.nameforce[name] then
                     showBuffIcon(v, n, setting, icon, expires, duration)
                     n=n+1
                 end
@@ -466,24 +466,24 @@ local function updateFrame(v)
     end
 end
 
-function GridBuffIcons:UNIT_AURA(event, unitid)
+function PlexusBuffIcons:UNIT_AURA(event, unitid)
     if not self.enabled then return end
-    -- if GridRoster.GetRaidUnitGUID then
-    -- 	local guid = GridRoster:GetRaidUnitGUID(unitid)
+    -- if PlexusRoster.GetRaidUnitGUID then
+    -- 	local guid = PlexusRoster:GetRaidUnitGUID(unitid)
     -- 	if not guid then return end
-    -- 	GridFrame:WithGUIDFrames(guid, updateFrame)
+    -- 	PlexusFrame:WithGUIDFrames(guid, updateFrame)
     -- else
     local guid = UnitGUID(unitid)
-    if not GridRoster:IsGUIDInRaid(guid) then return end
-    for k,v in pairs(GridFrame.registeredFrames) do
+    if not PlexusRoster:IsGUIDInRaid(guid) then return end
+    for k,v in pairs(PlexusFrame.registeredFrames) do
         if v.unitGUID == guid then updateFrame(v) end
     end
     -- end
 
 end
 
-function GridBuffIcons:UpdateAllUnitsBuffs()
-    for guid, unitid in GridRoster:IterateRoster() do
+function PlexusBuffIcons:UpdateAllUnitsBuffs()
+    for guid, unitid in PlexusRoster:IterateRoster() do
         self:UNIT_AURA("UpdateAllUnitsBuffs", unitid)
     end
     --self:UNIT_AURA("player");

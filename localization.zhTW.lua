@@ -1,5 +1,5 @@
 if GetLocale() ~= "zhTW" then return end
-GridBuffIconsLocale = {
+PlexusBuffIconsLocale = {
     ["Buff Icons"] = "增益減益圖示",
 
     ["Show Buff instead of Debuff"] = "顯示增益狀態",
@@ -39,7 +39,7 @@ GridBuffIconsLocale = {
     ["HORIZONTAL"] = "水準",
 
     ["Anchor Point"] = "圖示位置",
-    ["Anchor point of the first icon."] = "第一個圖示相對Grid框架的位置",
+    ["Anchor point of the first icon."] = "第一個圖示相對Plexus框架的位置",
     ["TOPRIGHT"] = "右上角",
     ["TOPLEFT"] = "左上角",
     ["BOTTOMLEFT"] = "左下角",
