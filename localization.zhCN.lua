@@ -1,9 +1,9 @@
 if GetLocale() ~= "zhCN" then return end
-BINDING_HEADER_GRIDBUFFICONS = "Plexus增益减益图标";
-BINDING_NAME_GRIDBUFFICONS_TOGGLE_BUFF = "切换显示增益或减益";
-BINDING_NAME_GRIDBUFFICONS_TOGGLE_BUFF_FILTER = "切换显示全部或仅仅可施放(可移除)的状态";
+_G.BINDING_HEADER_GRIDBUFFICONS = "Plexus增益减益图标";
+_G.BINDING_NAME_GRIDBUFFICONS_TOGGLE_BUFF = "切换显示增益或减益";
+_G.BINDING_NAME_GRIDBUFFICONS_TOGGLE_BUFF_FILTER = "切换显示全部或仅仅可施放(可移除)的状态";
 
-PlexusBuffIconsLocale = {
+_G.PlexusBuffIconsLocale = {
     ["Buff Icons"] = "额外状态图标",
 
     ["Show Buff instead of Debuff"] = "显示增益状态",

@@ -1,5 +1,5 @@
 if GetLocale() ~= "zhTW" then return end
-PlexusBuffIconsLocale = {
+_G.PlexusBuffIconsLocale = {
     ["Buff Icons"] = "增益減益圖示",
 
     ["Show Buff instead of Debuff"] = "顯示增益狀態",

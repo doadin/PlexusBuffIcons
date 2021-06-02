@@ -1,5 +1,5 @@
 if GetLocale() ~= "koKR" then return end
-PlexusBuffIconsLocale = {
+_G.PlexusBuffIconsLocale = {
 	["Buff Icons"] = "버프 아이콘",
 
 	["Show Buff instead of Debuff"] = "디버프 대신 버프 표시",
