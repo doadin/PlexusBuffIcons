@@ -1,12 +1,12 @@
-local UnitAura, UnitGUID, pairs = _G.UnitAura, _G.UnitGUID, _G.pairs
+local UnitAura, UnitGUID, pairs = UnitAura, UnitGUID, pairs
 
 local MAX_BUFFS = 6
 
 local L = setmetatable(PlexusBuffIconsLocale or {}, {__index = function(t, k) t[k] = k return k end})
 
-local PlexusRoster = _G.Plexus:GetModule("PlexusRoster")
-local PlexusFrame = _G.Plexus:GetModule("PlexusFrame")
-local PlexusBuffIcons = _G.Plexus:NewModule("PlexusBuffIcons", "AceBucket-3.0")
+local PlexusRoster = Plexus:GetModule("PlexusRoster")
+local PlexusFrame = Plexus:GetModule("PlexusFrame")
+local PlexusBuffIcons = Plexus:NewModule("PlexusBuffIcons", "AceBucket-3.0")
 
 local function WithAllPlexusFrames(func)
     for _, frame in pairs(PlexusFrame.registeredFrames) do
@@ -67,10 +67,10 @@ local options = {
             name = L["Enable"],
             desc = L["Enabling/disabling the module will display all buff or debuff icons."],
             get = function()
-                return PlexusBuffIcons.db.profile.enabled
+                return PlexusBuffIcons.db.profile.enabled;
             end,
             set = function(_, v)
-                PlexusBuffIcons.db.profile.enabled = v
+                PlexusBuffIcons.db.profile.enabled = v;
                 if v and not PlexusBuffIcons.enabled then
                     PlexusBuffIcons:OnEnable()
                 elseif not v and PlexusBuffIcons.enabled then
@@ -88,7 +88,7 @@ local options = {
             order = 51, width = "single",
             type = "toggle",
             name = L["Only Mine"],
-            disabled = function(info) return not PlexusBuffIcons.db.profile.showbuff end, --luacheck: ignore 212
+            disabled = function(info) return not PlexusBuffIcons.db.profile.showbuff end,
         },
         bufffilter = {
             order = 52, width = "double",
@@ -117,7 +117,7 @@ local options = {
             step = 1,
             get = function () return PlexusBuffIcons.db.profile.iconsize end,
             set = function(_, v)
-                PlexusBuffIcons.db.profile.iconsize = v
+                PlexusBuffIcons.db.profile.iconsize = v;
                 WithAllPlexusFrames(function (f) PlexusBuffIcons.ResetBuffIconSize(f) end)
             end
         },
@@ -131,7 +131,7 @@ local options = {
             step = 0.1,
             get = function () return PlexusBuffIcons.db.profile.alpha end,
             set = function(_, v)
-                PlexusBuffIcons.db.profile.alpha = v
+                PlexusBuffIcons.db.profile.alpha = v;
                 WithAllPlexusFrames(function (f) PlexusBuffIcons.ResetBuffIconAlpha(f) end)
             end
         },
@@ -145,7 +145,7 @@ local options = {
             step = 1,
             get = function () return PlexusBuffIcons.db.profile.offsetx end,
             set = function(_, v)
-                PlexusBuffIcons.db.profile.offsetx = v
+                PlexusBuffIcons.db.profile.offsetx = v;
                 WithAllPlexusFrames(function (f) PlexusBuffIcons.ResetBuffIconPos(f) end)
             end
         },
@@ -159,7 +159,7 @@ local options = {
             step = 1,
             get = function () return PlexusBuffIcons.db.profile.offsety end,
             set = function(_, v)
-                PlexusBuffIcons.db.profile.offsety = v
+                PlexusBuffIcons.db.profile.offsety = v;
                 WithAllPlexusFrames(function (f) PlexusBuffIcons.ResetBuffIconPos(f) end)
             end
         },
@@ -181,11 +181,11 @@ local options = {
             min = 0,
             step = 1,
             get = function()
-                return PlexusBuffIcons.db.profile.iconperrow
+                return PlexusBuffIcons.db.profile.iconperrow;
             end,
             set = function(_, v)
-                PlexusBuffIcons.db.profile.iconperrow = v
-                WithAllPlexusFrames(function (f) PlexusBuffIcons.ResetBuffIconPos(f) end)
+                PlexusBuffIcons.db.profile.iconperrow = v;
+                WithAllPlexusFrames(function (f) PlexusBuffIcons.ResetBuffIconPos(f) end);
             end,
         },
         orientation = {
@@ -223,12 +223,12 @@ local options = {
             name =  L["Buffs/Debuffs Never Shown"],
             desc =  L["Buff or Debuff names never to show, seperated by ','"],
             get = function()
-                return PlexusBuffIcons.db.profile.namefilter
+                return PlexusBuffIcons.db.profile.namefilter;
             end,
             set = function(_, v)
-                PlexusBuffIcons.db.profile.namefilter = v
+                PlexusBuffIcons.db.profile.namefilter = v;
                 PlexusBuffIcons:SetNameFilter(true)
-                PlexusBuffIcons:UpdateAllUnitsBuffs()
+                PlexusBuffIcons:UpdateAllUnitsBuffs();
             end,
         },
         --[[ --8.0 removed because performance problem
@@ -239,108 +239,112 @@ local options = {
             name =  L["Buffs/Debuffs Always Shown"],
             desc =  L["Buff or Debuff names which will always be shown if applied, seperated by ','"],
             get = function()
-                return PlexusBuffIcons.db.profile.nameforce
+                return PlexusBuffIcons.db.profile.nameforce;
             end,
             set = function(_, v)
-                PlexusBuffIcons.db.profile.nameforce = v
+                PlexusBuffIcons.db.profile.nameforce = v;
                 PlexusBuffIcons:SetNameFilter(false)
-                PlexusBuffIcons:UpdateAllUnitsBuffs()
+                PlexusBuffIcons:UpdateAllUnitsBuffs();
             end,
         },
         --]]
     }
 }
 
-(_G.Plexus or PlexusFrame).options.args.PlexusBuffIcons = options
+(Plexus or PlexusFrame).options.args.PlexusBuffIcons = options;
 
-function PlexusBuffIcons.InitializeFrame(plexusFrameObj, f) --luacheck: ignore 212
+function PlexusBuffIcons.InitializeFrame(plexusFrameObj, f)
     if not f.BuffIcons then
-        f.BuffIcons = {}
+        f.BuffIcons = {};
         for i=1, MAX_BUFFS do
             local bar = f.Bar or f.indicators.bar
             local bg = CreateFrame("Frame", "$parentPlexusBuffIcon"..i, bar)
             bg:SetFrameLevel(bar:GetFrameLevel() + 3)
-            bg.icon = bg:CreateTexture("$parentTex", "OVERLAY")
+            bg.icon = bg:CreateTexture("$parentTex", "OVERLAY");
             bg.icon:SetTexCoord(0.04, 0.96, 0.04, 0.96)
-            bg.icon:SetAllPoints(bg)
+            bg.icon:SetAllPoints(bg);
             bg.cd = CreateFrame("Cooldown", "$parentCD", bg, "CooldownFrameTemplate")
             bg.cd:SetAllPoints(bg.icon)
             bg.cd:SetReverse(true)
             bg.cd:SetDrawBling(false)
             bg.cd:SetDrawEdge(false)
             bg.cd:SetSwipeColor(0, 0, 0, 0.6)  --will be overrided by omnicc
+	    bg.stack = bg:CreateFontString("Stack", "OVERLAY", "NumberFontNormal")
+	    bg.stack:SetTextHeight(10)
+	    bg.stack:ClearAllPoints()
+	    bg.stack:SetPoint("BOTTOMRIGHT", bg.icon, 1, -1)
             f.BuffIcons[i] = bg
         end
 
-        PlexusBuffIcons.ResetBuffIconSize(f)
-        PlexusBuffIcons.ResetBuffIconPos(f)
-        PlexusBuffIcons.ResetBuffIconAlpha(f)
+        PlexusBuffIcons.ResetBuffIconSize(f);
+        PlexusBuffIcons.ResetBuffIconPos(f);
+        PlexusBuffIcons.ResetBuffIconAlpha(f);
     end
 end
 
 function PlexusBuffIcons.ResetBuffIconSize(f)
     if(f.BuffIcons) then
         for _,v in pairs(f.BuffIcons) do
-            v:SetWidth(PlexusBuffIcons.db.profile.iconsize)
-            v:SetHeight(PlexusBuffIcons.db.profile.iconsize)
+            v:SetWidth(PlexusBuffIcons.db.profile.iconsize);
+            v:SetHeight(PlexusBuffIcons.db.profile.iconsize);
         end
     end
 end
 
 function PlexusBuffIcons.ResetBuffIconPos(f)
     local icons = f.BuffIcons
-    local xadjust = 1
-    local yadjust = 1
-    local p = PlexusBuffIcons.db.profile
-    if(string.find(p.anchor, "BOTTOM")) then yadjust = -1 end
-    if(string.find(p.anchor, "LEFT")) then xadjust = -1 end
+    local xadjust = 1;
+    local yadjust = 1;
+    local p = PlexusBuffIcons.db.profile;
+    if(string.find(p.anchor, "BOTTOM")) then yadjust = -1; end;
+    if(string.find(p.anchor, "LEFT")) then xadjust = -1; end;
     if(icons) then
         for k,v in pairs(icons) do
-            v:ClearAllPoints()
+            v:ClearAllPoints();
             if(k==1) then
                 v:SetPoint(p.anchor, f, p.anchor, xadjust * p.offsetx, yadjust * p.offsety)
             elseif(p.iconperrow and p.iconperrow>0 and (k-1)%p.iconperrow==0) then
                 if(p.orientation == "VERTICAL") then
                     if(string.find(p.anchor, "RIGHT")) then
                         if(p.offsetx<=0) then
-                            v:SetPoint("RIGHT", icons[k-p.iconperrow], "LEFT", -1, 0) --向内侧(左)
+                            v:SetPoint("RIGHT", icons[k-p.iconperrow], "LEFT", -1, 0); --向内侧(左)
                         else
-                            v:SetPoint("LEFT", icons[k-p.iconperrow], "RIGHT", 1, 0)  --向外侧(右)
+                            v:SetPoint("LEFT", icons[k-p.iconperrow], "RIGHT", 1, 0);  --向外侧(右)
                         end
                     elseif(string.find(p.anchor, "LEFT")) then
                         if(p.offsetx<=0) then
-                            v:SetPoint("LEFT", icons[k-p.iconperrow], "RIGHT", 1, 0)  --向内侧(右)
+                            v:SetPoint("LEFT", icons[k-p.iconperrow], "RIGHT", 1, 0);  --向内侧(右)
                         else
-                            v:SetPoint("RIGHT", icons[k-p.iconperrow], "LEFT", -1, 0)
+                            v:SetPoint("RIGHT", icons[k-p.iconperrow], "LEFT", -1, 0);
                         end
                     end
                 else
                     if(string.find(p.anchor, "TOP")) then
                         if(p.offsety<=0) then
-                            v:SetPoint("TOP", icons[k-p.iconperrow], "BOTTOM", 0, -1)  --向内侧(下)
+                            v:SetPoint("TOP", icons[k-p.iconperrow], "BOTTOM", 0, -1);  --向内侧(下)
                         else
-                            v:SetPoint("BOTTOM", icons[k-p.iconperrow], "TOP", 0, 1)  --向内侧(上)
+                            v:SetPoint("BOTTOM", icons[k-p.iconperrow], "TOP", 0, 1);  --向内侧(上)
                         end
                     elseif(string.find(p.anchor, "BOTTOM")) then
                         if(p.offsety<=0) then
-                            v:SetPoint("BOTTOM", icons[k-p.iconperrow], "TOP", 0, 1)
+                            v:SetPoint("BOTTOM", icons[k-p.iconperrow], "TOP", 0, 1);
                         else
-                            v:SetPoint("TOP", icons[k-p.iconperrow], "BOTTOM", 0, -1)
+                            v:SetPoint("TOP", icons[k-p.iconperrow], "BOTTOM", 0, -1);
                         end
                     end
                 end
             else
                 if(p.orientation == "VERTICAL") then
                     if(string.find(p.anchor, "BOTTOM")) then
-                        v:SetPoint("BOTTOM", icons[k-1], "TOP", 0, 1)  --向上增长
+                        v:SetPoint("BOTTOM", icons[k-1], "TOP", 0, 1);  --向上增长
                     else
-                        v:SetPoint("TOP", icons[k-1], "BOTTOM", 0, -1) --向下增长
+                        v:SetPoint("TOP", icons[k-1], "BOTTOM", 0, -1); --向下增长
                     end
                 else
                     if(string.find(p.anchor, "LEFT")) then
-                        v:SetPoint("LEFT", icons[k-1], "RIGHT", 1, 0)  --向右增长
+                        v:SetPoint("LEFT", icons[k-1], "RIGHT", 1, 0);  --向右增长
                     else
-                        v:SetPoint("RIGHT", icons[k-1], "LEFT", -1, 0)  --向左增长
+                        v:SetPoint("RIGHT", icons[k-1], "LEFT", -1, 0);  --向左增长
                     end
                 end
             end
@@ -350,16 +354,16 @@ end
 
 function PlexusBuffIcons.ResetBuffIconAlpha(f)
     if(f.BuffIcons) then
-        for _,v in pairs(f.BuffIcons) do
-            v:SetAlpha( PlexusBuffIcons.db.profile.alpha )
+        for k,v in pairs(f.BuffIcons) do
+            v:SetAlpha( PlexusBuffIcons.db.profile.alpha );
         end
     end
 end
 
 function PlexusBuffIcons:OnInitialize()
     self.super.OnInitialize(self)
-    WithAllPlexusFrames(function(f) PlexusBuffIcons.InitializeFrame(nil, f) end)
-    hooksecurefunc(PlexusFrame, "InitializeFrame", self.InitializeFrame)
+    WithAllPlexusFrames(function(f) PlexusBuffIcons.InitializeFrame(nil, f); end)
+    hooksecurefunc(PlexusFrame, "InitializeFrame", self.InitializeFrame);
 end
 
 function PlexusBuffIcons:OnEnable()
@@ -367,24 +371,24 @@ function PlexusBuffIcons:OnEnable()
     self.enabled = true
     self:RegisterEvent("UNIT_AURA")
     if(not self.bucket) then
-        self:Debug("registering bucket")
+        self:Debug("registering bucket");
         self.bucket = self:RegisterBucketMessage("Plexus_UpdateLayoutSize", 1, "UpdateAllUnitsBuffs")
     end
     self:SetNameFilter(true)
     self:SetNameFilter(false)
 
-    self:UpdateAllUnitsBuffs()
+    self:UpdateAllUnitsBuffs();
 end
 
 function PlexusBuffIcons:OnDisable()
     self.enabled = nil
     self:UnregisterEvent("UNIT_AURA")
     if(self.bucket) then
-        self:Debug("unregistering bucket")
-        self:UnregisterBucket(self.bucket)
-        self.bucket = nil
+        self:Debug("unregistering bucket");
+        self:UnregisterBucket(self.bucket);
+        self.bucket = nil;
     end
-    for _,v in pairs(PlexusFrame.registeredFrames) do
+    for k,v in pairs(PlexusFrame.registeredFrames) do
         if(v.BuffIcons) then
             for i=1, MAX_BUFFS do v.BuffIcons[i]:Hide() end
         end
@@ -415,9 +419,15 @@ function PlexusBuffIcons:Reset()
     self:SetNameFilter(false)
 end
 
-local function showBuffIcon(v, n, setting, icon, expires, duration)
+local function showBuffIcon(v, n, setting, icon, count, expires, duration)
     v.BuffIcons[n]:Show()
-    v.BuffIcons[n].icon:SetTexture(icon)
+    v.BuffIcons[n].icon:SetTexture(icon);
+    if count > 1 then
+        v.BuffIcons[n].stack:SetText(count);
+        v.BuffIcons[n].stack:Show();
+    else
+        v.BuffIcons[n].stack:Hide();
+    end
     if (setting.showcooldown) then
         v.BuffIcons[n].cd.noCooldownCount = not setting.showcdtext
         v.BuffIcons[n].cd:SetDrawEdge(v.BuffIcons[n].cd.noCooldownCount)
@@ -434,7 +444,7 @@ local function updateFrame(v)
 
     --[[ --8.0 removed because of performance problem
     for name, _ in pairs(PlexusBuffIcons.nameforce) do
-        local name, rank, icon, count, debuffType, duration, expires, caster, isStealable, _, spellID = UnitAura(v.unit, name)
+        local name, rank, icon, count, debuffType, duration, expires, caster, isStealable, _, spellID = UnitAura(v.unit, name);
         if name then
             showBuffIcon(v, n, setting, icon, expires, duration)
             n=n+1
@@ -448,25 +458,25 @@ local function updateFrame(v)
         filter = filter and "HARMFUL|RAID" or "HARMFUL"
     end
     while(n <= setting.iconnum and i<40) do
-        local name, icon, _, _, duration, expires, _, _, _, _ = UnitAura(v.unit, i, filter)
+        local name, icon, count, debuffType, duration, expires, caster, isStealable, _, spellID = UnitAura(v.unit, i, filter);
         if (name) then
             if not showbuff or (duration and duration > 0 or setting.bufffilter) then  --ignore mount, world buff etc
                 if not PlexusBuffIcons.namefilter[name] and not PlexusBuffIcons.nameforce[name] then
-                    showBuffIcon(v, n, setting, icon, expires, duration)
-                    n=n+1
+			showBuffIcon(v, n, setting, icon, count, expires, duration)
+			n=n+1
                 end
             end
         else
-            break
+            break;
         end
         i=i+1
     end
-    for i=n, MAX_BUFFS do --luacheck: ignore
-        v.BuffIcons[i]:Hide()
+    for i=n, MAX_BUFFS do
+        v.BuffIcons[i]:Hide();
     end
 end
 
-function PlexusBuffIcons:UNIT_AURA(_, unitid)
+function PlexusBuffIcons:UNIT_AURA(event, unitid)
     if not self.enabled then return end
     -- if PlexusRoster.GetRaidUnitGUID then
     -- 	local guid = PlexusRoster:GetRaidUnitGUID(unitid)
@@ -475,7 +485,7 @@ function PlexusBuffIcons:UNIT_AURA(_, unitid)
     -- else
     local guid = UnitGUID(unitid)
     if not PlexusRoster:IsGUIDInRaid(guid) then return end
-    for _,v in pairs(PlexusFrame.registeredFrames) do
+    for k,v in pairs(PlexusFrame.registeredFrames) do
         if v.unitGUID == guid then updateFrame(v) end
     end
     -- end
@@ -483,8 +493,8 @@ function PlexusBuffIcons:UNIT_AURA(_, unitid)
 end
 
 function PlexusBuffIcons:UpdateAllUnitsBuffs()
-    for _, unitid in PlexusRoster:IterateRoster() do
+    for guid, unitid in PlexusRoster:IterateRoster() do
         self:UNIT_AURA("UpdateAllUnitsBuffs", unitid)
     end
-    --self:UNIT_AURA("player")
+    --self:UNIT_AURA("player");
 end
