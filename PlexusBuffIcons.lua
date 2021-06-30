@@ -19,11 +19,11 @@ PlexusBuffIcons.menuName = L["Buff Icons"]
 PlexusBuffIcons.defaultDB = {
     enabled = true,
     iconsize = 9,
-	offsetx = -1,
+    offsetx = -1,
     offsety = -1,
-	alpha = 0.9,
-	iconnum = 4,
-	iconperrow = 2,
+    alpha = 0.9,
+    iconnum = 4,
+    iconperrow = 2,
     showbuff = nil,
     buffmine = nil,
     bufffilter = true,
@@ -253,7 +253,7 @@ local options = {
 
 (_G.Plexus or PlexusFrame).options.args.PlexusBuffIcons = options
 
-function PlexusBuffIcons.InitializeFrame(plexusFrameObj, f) --luacheck: ignore 212
+function PlexusBuffIcons.InitializeFrame(_, f) --luacheck: ignore 212
     if not f.BuffIcons then
         f.BuffIcons = {}
         for i=1, MAX_BUFFS do
@@ -269,6 +269,10 @@ function PlexusBuffIcons.InitializeFrame(plexusFrameObj, f) --luacheck: ignore 2
             bg.cd:SetDrawBling(false)
             bg.cd:SetDrawEdge(false)
             bg.cd:SetSwipeColor(0, 0, 0, 0.6)  --will be overrided by omnicc
+            bg.stack = bg:CreateFontString("Stack", "OVERLAY", "NumberFontNormal")
+            bg.stack:SetTextHeight(10)
+            bg.stack:ClearAllPoints()
+            bg.stack:SetPoint("BOTTOMRIGHT", bg.icon, 1, -1)
             f.BuffIcons[i] = bg
         end
 
@@ -415,9 +419,15 @@ function PlexusBuffIcons:Reset()
     self:SetNameFilter(false)
 end
 
-local function showBuffIcon(v, n, setting, icon, expires, duration)
+local function showBuffIcon(v, n, setting, icon, count, expires, duration)
     v.BuffIcons[n]:Show()
     v.BuffIcons[n].icon:SetTexture(icon)
+    if count > 1 then
+        v.BuffIcons[n].stack:SetText(count)
+        v.BuffIcons[n].stack:Show()
+    else
+        v.BuffIcons[n].stack:Hide()
+    end
     if (setting.showcooldown) then
         v.BuffIcons[n].cd.noCooldownCount = not setting.showcdtext
         v.BuffIcons[n].cd:SetDrawEdge(v.BuffIcons[n].cd.noCooldownCount)
@@ -448,11 +458,11 @@ local function updateFrame(v)
         filter = filter and "HARMFUL|RAID" or "HARMFUL"
     end
     while(n <= setting.iconnum and i<40) do
-        local name, icon, _, _, duration, expires, _, _, _, _ = UnitAura(v.unit, i, filter)
+        local name, icon, count, _, duration, expires, _, _, _, _ = UnitAura(v.unit, i, filter)
         if (name) then
             if not showbuff or (duration and duration > 0 or setting.bufffilter) then  --ignore mount, world buff etc
                 if not PlexusBuffIcons.namefilter[name] and not PlexusBuffIcons.nameforce[name] then
-                    showBuffIcon(v, n, setting, icon, expires, duration)
+                    showBuffIcon(v, n, setting, icon, count, expires, duration)
                     n=n+1
                 end
             end
