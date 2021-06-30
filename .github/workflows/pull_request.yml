@@ -1,0 +1,34 @@
+name: PR-CI
+
+on: [pull_request]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout addon
+        uses: actions/checkout@v1
+        with:
+          fetch-depth: 100
+      - name: Run luacheck
+        uses: BigWigsMods/actions/luacheck@master
+        with:
+          args: -q
+
+      - name: Package Retail
+        uses: BigWigsMods/packager@master
+        with:
+            args: -g retail -d
+
+      - name: Package Classic
+        uses: BigWigsMods/packager@master
+        with:
+            args: -g classic -d
+
+      - name: Package BC Classic
+        uses: BigWigsMods/packager@master
+        with:
+          args: -g bcc -d
+
