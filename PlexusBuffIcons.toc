@@ -1,7 +1,8 @@
-## Interface: 90005
-## Interface-Retail: 90005
-## Interface-Classic: 11306
-## Interface-BCC: 20501
+## Interface: 90207
+## Interface-Retail: 90207
+## Interface-Classic: 11403
+## Interface-BCC: 20504
+## Interface-Wrath: 30400
 ## Version: @project-version@
 ## Title: PlexusBuffIcons
 ## Author: Doadin
