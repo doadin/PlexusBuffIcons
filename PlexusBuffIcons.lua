@@ -266,7 +266,7 @@ local options = {
 function PlexusBuffIcons.InitializeFrame(_, f) --luacheck: ignore 212
     if not f.BuffIcons then
         f.BuffIcons = {}
-	for i=1, MAX_BUFFS do
+        for i=1, MAX_BUFFS do
             local bar = f.Bar or f.indicators.bar
             local bg = CreateFrame("Frame", "$parentPlexusBuffIcon"..i, bar)
             bg:SetFrameLevel(bar:GetFrameLevel() + 3)
@@ -287,7 +287,7 @@ function PlexusBuffIcons.InitializeFrame(_, f) --luacheck: ignore 212
             bg.stack:SetFont(STANDARD_TEXT_FONT, 9, "OUTLINE")
             bg.stack:ClearAllPoints()
             bg.stack:SetPoint("BOTTOMRIGHT", bg.icon, 1, -1)
-	    f.BuffIcons[i] = bg
+        f.BuffIcons[i] = bg
         end
 
         PlexusBuffIcons.ResetBuffIconSize(f)
@@ -453,7 +453,7 @@ local function showBuffIcon(v, n, setting, icon, count, expires, duration)
         if (setting.showcdtext) then
             local timeElapsed = 0
             v.BuffIcons[n].expires = expires
-	    if not v.BuffIcons[n].hooked then
+            if not v.BuffIcons[n].hooked then
                 v.BuffIcons[n]:HookScript("OnUpdate", function(self, elapsed)
                     if self.expires == 0 then
                         self.cdtext:SetText("")
@@ -547,8 +547,8 @@ local function updateFrame_df(v)
                     return
                 end
                 if not showbuff or (duration and duration > 0 or setting.bufffilter) then  --ignore mount, world buff etc
-		    if not PlexusBuffIcons.namefilter[name] and not PlexusBuffIcons.nameforce[name] then
-			showBuffIcon(v, n, setting, icon, count, expires, duration)
+                    if not PlexusBuffIcons.namefilter[name] and not PlexusBuffIcons.nameforce[name] then
+                        showBuffIcon(v, n, setting, icon, count, expires, duration)
                         n=n+1
                     end
                 end
@@ -607,7 +607,7 @@ function PlexusBuffIcons:UNIT_AURA(_, unitid, updatedAuras)
                 for _, auraInstanceID in ipairs(updatedAuras.removedAuraInstanceIDs) do
                     UnitAuraInstanceID[unitid][auraInstanceID] = nil
                 end
-            end	
+            end
         end
         for _,v in pairs(PlexusFrame.registeredFrames) do
             if v.unitGUID == guid then updateFrame_df(v) end
@@ -626,7 +626,7 @@ function PlexusBuffIcons:UpdateAllUnitsBuffs()
         UnitAuraInstanceID = {}
     end
     for _, unitid in PlexusRoster:IterateRoster() do
-	self:UNIT_AURA("UpdateAllUnitsBuffs", unitid)
+        self:UNIT_AURA("UpdateAllUnitsBuffs", unitid)
     end
     --self:UNIT_AURA("player")
 end
