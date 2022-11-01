@@ -1,3 +1,19 @@
+local function IsClassicWow()
+    return WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
+end
+
+local function IsTBCWow()
+    return WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC and LE_EXPANSION_LEVEL_CURRENT == LE_EXPANSION_BURNING_CRUSADE
+end
+
+local function IsWrathWow()
+    return WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC and LE_EXPANSION_LEVEL_CURRENT == LE_EXPANSION_WRATH_OF_THE_LICH_KING
+end
+
+local function IsRetailWow()
+    return WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
+end
+
 local UnitAura, UnitGUID, pairs = _G.UnitAura, _G.UnitGUID, _G.pairs
 
 local MAX_BUFFS = 6
@@ -14,12 +30,10 @@ local function WithAllPlexusFrames(func)
     end
 end
 
-local version, build, date, tocversion = GetBuildInfo()
-
 local GetAuraDataByAuraInstanceID
 local ForEachAura
 
-if tocversion >= 100000 then
+if IsRetailWow() then
     GetAuraDataByAuraInstanceID = C_UnitAuras.GetAuraDataByAuraInstanceID
     ForEachAura = AuraUtil.ForEachAura
 end
@@ -532,18 +546,18 @@ local function updateFrame_df(v)
     local filter = setting.bufffilter
 
     if v.unit and UnitAuraInstanceID[v.unit] then
-        for instanceID in pairs(UnitAuraInstanceID[v.unit]) do
+        for instanceID, aura in pairs(UnitAuraInstanceID[v.unit]) do
             if n > setting.iconnum then
                 break
             end
             local aurainstanceinfo = {}
             aurainstanceinfo = GetAuraDataByAuraInstanceID(v.unit, instanceID)
-            if aurainstanceinfo then
-                local name, icon, count, duration, expires = aurainstanceinfo.name, aurainstanceinfo.icon, aurainstanceinfo.applications, aurainstanceinfo.duration, aurainstanceinfo.expirationTime
-                if filter and not aurainstanceinfo.isRaid then
+            if aura then
+                local name, icon, count, duration, expires = aura.name, aura.icon, aura.applications, aura.duration, aura.expirationTime
+                if filter and not aura.isRaid then
                     return
                 end
-                if setting.buffmine and not aurainstanceinfo.isFromPlayerOrPlayerPet then
+                if setting.buffmine and not aura.isFromPlayerOrPlayerPet then
                     return
                 end
                 if not showbuff or (duration and duration > 0 or setting.bufffilter) then  --ignore mount, world buff etc
@@ -567,45 +581,68 @@ function PlexusBuffIcons:UNIT_AURA(_, unitid, updatedAuras)
     -- 	if not guid then return end
     -- 	PlexusFrame:WithGUIDFrames(guid, updateFrame)
     -- else
+    if unitid then
+        if not UnitAuraInstanceID then
+            UnitAuraInstanceID = {}
+        end
+        if not UnitAuraInstanceID[unitid] then
+            UnitAuraInstanceID[unitid] = {}
+        end
+    end
+
     local guid = UnitGUID(unitid)
     if not PlexusRoster:IsGUIDInRaid(guid) then return end
 
-    if tocversion >= 100000 then
+    if IsRetailWow() then
         local showbuff = PlexusBuffIcons.db.profile.showbuff
 
-        if not updatedAuras or updatedAuras.isFullUpdate then
-            for guid, unit in PlexusRoster:IterateRoster() do
-                local unitauraInfo = {}
-                if showbuff then
-                    ForEachAura(unit, "HELPFUL", nil, function(aura) unitauraInfo[aura.auraInstanceID] = aura end, true)
-                else
-                    ForEachAura(unit, "HARMFUL", nil, function(aura) unitauraInfo[aura.auraInstanceID] = aura end, true)
-                end
-
-                if not UnitAuraInstanceID[unit] then
-                    UnitAuraInstanceID[unit] = {}
-                end
-                for k, v in pairs(unitauraInfo) do
-                    UnitAuraInstanceID[unit][v.auraInstanceID] = true
-                end
+        if ( not updatedAuras and unitid ) or ( updatedAuras and updatedAuras.isFullUpdate ) then
+            local unitauraInfo = {}
+            if showbuff then
+                ForEachAura(unitid, "HELPFUL", nil, function(aura) unitauraInfo[aura.auraInstanceID] = aura end, true)
+            else
+                ForEachAura(unitid, "HARMFUL", nil, function(aura) unitauraInfo[aura.auraInstanceID] = aura end, true)
             end
-        else
+
             if not UnitAuraInstanceID[unitid] then
                 UnitAuraInstanceID[unitid] = {}
             end
+            for _, v in pairs(unitauraInfo) do
+                UnitAuraInstanceID[unitid][v.auraInstanceID] = v
+            end
+        end
 
+        if updatedAuras then
             if updatedAuras.addedAuras then
-               for _, addedAuraInfo in pairs(updatedAuras.addedAuras) do
-                   if showbuff and addedAuraInfo.isHelpful then
-                       UnitAuraInstanceID[unitid][addedAuraInfo.auraInstanceID] = true
-                   elseif not showbuff and addedAuraInfo.isHarmful then
-                       UnitAuraInstanceID[unitid][addedAuraInfo.auraInstanceID] = true
+                if not UnitAuraInstanceID[unitid] then
+                    UnitAuraInstanceID[unitid] = {}
+                end
+
+                for _, addedAuraInfo in pairs(updatedAuras.addedAuras) do
+                    if showbuff and addedAuraInfo.isHelpful then
+                        UnitAuraInstanceID[unitid][addedAuraInfo.auraInstanceID] = addedAuraInfo
+                    elseif not showbuff and addedAuraInfo.isHarmful then
+                       UnitAuraInstanceID[unitid][addedAuraInfo.auraInstanceID] = addedAuraInfo
                    end
                end
             end
+
+            if updatedAuras.updatedAuraInstanceIDs then
+                for _, auraInstanceID in ipairs(updatedAuras.updatedAuraInstanceIDs) do
+                    if UnitAuraInstanceID[unitid][auraInstanceID] then
+                        local newAura = GetAuraDataByAuraInstanceID(unitid, auraInstanceID)
+                        UnitAuraInstanceID[unitid][newAura.auraInstanceID] = newAura
+                    end
+                end
+            end
+
             if updatedAuras.removedAuraInstanceIDs then
                 for _, auraInstanceID in ipairs(updatedAuras.removedAuraInstanceIDs) do
-                    UnitAuraInstanceID[unitid][auraInstanceID] = nil
+                    if UnitAuraInstanceID[unitid] then
+                        if auraInstanceID and UnitAuraInstanceID[unitid][auraInstanceID] then
+                            UnitAuraInstanceID[unitid][auraInstanceID] = nil
+                        end
+                    end
                 end
             end
         end
@@ -622,7 +659,7 @@ function PlexusBuffIcons:UNIT_AURA(_, unitid, updatedAuras)
 end
 
 function PlexusBuffIcons:UpdateAllUnitsBuffs()
-    if tocversion >= 100000 then
+    if IsRetailWow() then
         UnitAuraInstanceID = {}
     end
     for _, unitid in PlexusRoster:IterateRoster() do
