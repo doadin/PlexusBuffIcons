@@ -1,15 +1,3 @@
-local function IsClassicWow()
-    return WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
-end
-
-local function IsTBCWow()
-    return WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC and LE_EXPANSION_LEVEL_CURRENT == LE_EXPANSION_BURNING_CRUSADE
-end
-
-local function IsWrathWow()
-    return WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC and LE_EXPANSION_LEVEL_CURRENT == LE_EXPANSION_WRATH_OF_THE_LICH_KING
-end
-
 local function IsRetailWow()
     return WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
 end
@@ -554,8 +542,10 @@ local function updateFrame_df(v)
             if n > setting.iconnum then
                 break
             end
-            local aurainstanceinfo = {}
-            aurainstanceinfo = GetAuraDataByAuraInstanceID(v.unit, instanceID)
+            if not aura.sourceUnit then
+                local aurainfo = GetAuraDataByAuraInstanceID(v.unit, instanceID)
+                aura.sourceUnit = aurainfo.sourceUnit
+            end
             if aura then
                 local name, icon, count, duration, expires, caster = aura.name, aura.icon, aura.applications, aura.duration, aura.expirationTime, aura.sourceUnit
                 if filter and not aura.isRaid then
@@ -634,7 +624,7 @@ function PlexusBuffIcons:UNIT_AURA(_, unitid, updatedAuras)
                             UnitAuraInstanceID[unitid][newAura.auraInstanceID] = newAura
                         elseif not showbuff and newAura.isHarmful then
                             UnitAuraInstanceID[unitid][newAura.auraInstanceID] = newAura
-                        end                        
+                        end
                     end
                 end
             end
