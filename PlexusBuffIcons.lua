@@ -538,7 +538,7 @@ local function updateFrame_df(v)
     local filter = setting.bufffilter
 
     if v.unit and UnitIsVisible(v.unit) and UnitAuraInstanceID[v.unit] then
-        for instanceID, aura in pairs(UnitAuraInstanceID[v.unit]) do
+        for _, aura in pairs(UnitAuraInstanceID[v.unit]) do
             if n > setting.iconnum then
                 break
             end
