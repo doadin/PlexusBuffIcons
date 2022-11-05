@@ -542,10 +542,6 @@ local function updateFrame_df(v)
             if n > setting.iconnum then
                 break
             end
-            if not aura.sourceUnit then
-                local aurainfo = GetAuraDataByAuraInstanceID(v.unit, instanceID)
-                aura.sourceUnit = aurainfo.sourceUnit
-            end
             if aura then
                 local name, icon, count, duration, expires, caster = aura.name, aura.icon, aura.applications, aura.duration, aura.expirationTime, aura.sourceUnit
                 if filter and not aura.isRaid then
@@ -604,10 +600,6 @@ function PlexusBuffIcons:UNIT_AURA(_, unitid, updatedAuras)
         if updatedAuras then
             if updatedAuras.addedAuras then
                 for _, addedAuraInfo in pairs(updatedAuras.addedAuras) do
-                    if not addedAuraInfo.sourceUnit then
-                        local aurainfo = GetAuraDataByAuraInstanceID(unitid, addedAuraInfo.auraInstanceID)
-                        addedAuraInfo.sourceUnit = aurainfo.sourceUnit
-                    end
                     if showbuff and addedAuraInfo.isHelpful then
                         UnitAuraInstanceID[unitid][addedAuraInfo.auraInstanceID] = addedAuraInfo
                     elseif not showbuff and addedAuraInfo.isHarmful then
@@ -618,12 +610,26 @@ function PlexusBuffIcons:UNIT_AURA(_, unitid, updatedAuras)
 
             if updatedAuras.updatedAuraInstanceIDs then
                 for _, auraInstanceID in ipairs(updatedAuras.updatedAuraInstanceIDs) do
-                    if UnitAuraInstanceID[unitid][auraInstanceID] then
+                    local oldAura = UnitAuraInstanceID[unitid][auraInstanceID]
+                    if oldAura then
                         local newAura = GetAuraDataByAuraInstanceID(unitid, auraInstanceID)
-                        if showbuff and newAura.isHelpful then
-                            UnitAuraInstanceID[unitid][newAura.auraInstanceID] = newAura
-                        elseif not showbuff and newAura.isHarmful then
-                            UnitAuraInstanceID[unitid][newAura.auraInstanceID] = newAura
+                        if newAura then
+                            if showbuff and newAura.isHelpful then
+                                UnitAuraInstanceID[unitid][newAura.auraInstanceID] = newAura
+                            elseif not showbuff and newAura.isHarmful then
+                                UnitAuraInstanceID[unitid][newAura.auraInstanceID] = newAura
+                            end
+                        else
+                            UnitAuraInstanceID[unitid][auraInstanceID] = nil
+                        end
+                    else
+                        local aura = GetAuraDataByAuraInstanceID(unitid, auraInstanceID)
+                        if aura then
+                            if showbuff and aura.isHelpful then
+                                UnitAuraInstanceID[unitid][auraInstanceID] = aura
+                            elseif not showbuff and aura.isHarmful then
+                                UnitAuraInstanceID[unitid][auraInstanceID] = aura
+                            end
                         end
                     end
                 end
