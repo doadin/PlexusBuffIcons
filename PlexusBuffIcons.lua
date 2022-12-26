@@ -544,7 +544,7 @@ local function updateFrame_df(v)
             end
             if not aura.sourceUnit then
                 local aurainfo = GetAuraDataByAuraInstanceID(v.unit, instanceID)
-                aura.sourceUnit = aurainfo.sourceUnit
+                aura.sourceUnit = aurainfo and aurainfo.sourceUnit
             end
             if aura then
                 local name, icon, count, duration, expires, caster = aura.name, aura.icon, aura.applications, aura.duration, aura.expirationTime, aura.sourceUnit
