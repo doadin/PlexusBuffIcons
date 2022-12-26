@@ -622,7 +622,7 @@ function PlexusBuffIcons:UNIT_AURA(_, unitid, updatedAuras)
                         local newAura = GetAuraDataByAuraInstanceID(unitid, auraInstanceID)
                         if showbuff and newAura and newAura.isHelpful then
                             UnitAuraInstanceID[unitid][newAura.auraInstanceID] = newAura
-                        elseif not showbuff and newAura.isHarmful then
+                        elseif not showbuff and newAura and newAura.isHarmful then
                             UnitAuraInstanceID[unitid][newAura.auraInstanceID] = newAura
                         end
                     end
