@@ -263,7 +263,7 @@ local options = {
     }
 }
 
-(_G.Plexus or PlexusFrame).options.args.PlexusBuffIcons = options
+_G.Plexus.options.args.PlexusBuffIcons = options
 
 function PlexusBuffIcons.InitializeFrame(_, f) --luacheck: ignore 212
     if not f.BuffIcons then
@@ -606,7 +606,7 @@ function PlexusBuffIcons:UNIT_AURA(_, unitid, updatedAuras)
                 for _, addedAuraInfo in pairs(updatedAuras.addedAuras) do
                     if not addedAuraInfo.sourceUnit then
                         local aurainfo = GetAuraDataByAuraInstanceID(unitid, addedAuraInfo.auraInstanceID)
-                        addedAuraInfo.sourceUnit = aurainfo.sourceUnit
+                        addedAuraInfo.sourceUnit = aurainfo and aurainfo.sourceUnit
                     end
                     if showbuff and addedAuraInfo.isHelpful then
                         UnitAuraInstanceID[unitid][addedAuraInfo.auraInstanceID] = addedAuraInfo
