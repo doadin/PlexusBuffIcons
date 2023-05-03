@@ -263,7 +263,7 @@ local options = {
     }
 }
 
-(_G.Plexus or PlexusFrame).options.args.PlexusBuffIcons = options
+_G.Plexus.options.args.PlexusBuffIcons = options
 
 function PlexusBuffIcons.InitializeFrame(_, f) --luacheck: ignore 212
     if not f.BuffIcons then
@@ -538,9 +538,13 @@ local function updateFrame_df(v)
     local filter = setting.bufffilter
 
     if v.unit and UnitIsVisible(v.unit) and UnitAuraInstanceID[v.unit] then
-        for _, aura in pairs(UnitAuraInstanceID[v.unit]) do
+        for instanceID, aura in pairs(UnitAuraInstanceID[v.unit]) do
             if n > setting.iconnum then
                 break
+            end
+            if not aura.sourceUnit then
+                local aurainfo = GetAuraDataByAuraInstanceID(v.unit, instanceID)
+                aura.sourceUnit = aurainfo and aurainfo.sourceUnit
             end
             if aura then
                 local name, icon, count, duration, expires, caster = aura.name, aura.icon, aura.applications, aura.duration, aura.expirationTime, aura.sourceUnit
@@ -600,6 +604,10 @@ function PlexusBuffIcons:UNIT_AURA(_, unitid, updatedAuras)
         if updatedAuras then
             if updatedAuras.addedAuras then
                 for _, addedAuraInfo in pairs(updatedAuras.addedAuras) do
+                    if not addedAuraInfo.sourceUnit then
+                        local aurainfo = GetAuraDataByAuraInstanceID(unitid, addedAuraInfo.auraInstanceID)
+                        addedAuraInfo.sourceUnit = aurainfo and aurainfo.sourceUnit
+                    end
                     if showbuff and addedAuraInfo.isHelpful then
                         UnitAuraInstanceID[unitid][addedAuraInfo.auraInstanceID] = addedAuraInfo
                     elseif not showbuff and addedAuraInfo.isHarmful then
@@ -610,26 +618,12 @@ function PlexusBuffIcons:UNIT_AURA(_, unitid, updatedAuras)
 
             if updatedAuras.updatedAuraInstanceIDs then
                 for _, auraInstanceID in ipairs(updatedAuras.updatedAuraInstanceIDs) do
-                    local oldAura = UnitAuraInstanceID[unitid][auraInstanceID]
-                    if oldAura then
+                    if UnitAuraInstanceID[unitid][auraInstanceID] then
                         local newAura = GetAuraDataByAuraInstanceID(unitid, auraInstanceID)
-                        if newAura then
-                            if showbuff and newAura.isHelpful then
-                                UnitAuraInstanceID[unitid][newAura.auraInstanceID] = newAura
-                            elseif not showbuff and newAura.isHarmful then
-                                UnitAuraInstanceID[unitid][newAura.auraInstanceID] = newAura
-                            end
-                        else
-                            UnitAuraInstanceID[unitid][auraInstanceID] = nil
-                        end
-                    else
-                        local aura = GetAuraDataByAuraInstanceID(unitid, auraInstanceID)
-                        if aura then
-                            if showbuff and aura.isHelpful then
-                                UnitAuraInstanceID[unitid][auraInstanceID] = aura
-                            elseif not showbuff and aura.isHarmful then
-                                UnitAuraInstanceID[unitid][auraInstanceID] = aura
-                            end
+                        if showbuff and newAura and newAura.isHelpful then
+                            UnitAuraInstanceID[unitid][newAura.auraInstanceID] = newAura
+                        elseif not showbuff and newAura and newAura.isHarmful then
+                            UnitAuraInstanceID[unitid][newAura.auraInstanceID] = newAura
                         end
                     end
                 end
