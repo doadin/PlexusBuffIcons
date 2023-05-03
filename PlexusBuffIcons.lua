@@ -22,8 +22,8 @@ local GetAuraDataByAuraInstanceID
 local ForEachAura
 
 if IsRetailWow() then
-    GetAuraDataByAuraInstanceID = C_UnitAuras.GetAuraDataByAuraInstanceID
-    ForEachAura = AuraUtil.ForEachAura
+    GetAuraDataByAuraInstanceID = _G.C_UnitAuras.GetAuraDataByAuraInstanceID
+    ForEachAura = _G.AuraUtil.ForEachAura
 end
 
 PlexusBuffIcons.menuName = L["Buff Icons"]
@@ -537,7 +537,8 @@ local function updateFrame_df(v)
 
     local filter = setting.bufffilter
 
-    if v.unit and UnitIsVisible(v.unit) and UnitAuraInstanceID[v.unit] then
+    if v.unit and UnitAuraInstanceID[v.unit] then
+        local numAuras = 0
         for instanceID, aura in pairs(UnitAuraInstanceID[v.unit]) do
             if n > setting.iconnum then
                 break
@@ -547,6 +548,7 @@ local function updateFrame_df(v)
                 aura.sourceUnit = aurainfo and aurainfo.sourceUnit
             end
             if aura then
+                numAuras = numAuras + 1
                 local name, icon, count, duration, expires, caster = aura.name, aura.icon, aura.applications, aura.duration, aura.expirationTime, aura.sourceUnit
                 if filter and not aura.isRaid then
                     return
@@ -560,6 +562,9 @@ local function updateFrame_df(v)
                         n=n+1
                     end
                 end
+            end
+            if numAuras == 0 then
+                UnitAuraInstanceID[v.unit] = nil
             end
         end
     end
@@ -631,7 +636,7 @@ function PlexusBuffIcons:UNIT_AURA(_, unitid, updatedAuras)
 
             if updatedAuras.removedAuraInstanceIDs then
                 for _, auraInstanceID in ipairs(updatedAuras.removedAuraInstanceIDs) do
-                    if UnitAuraInstanceID[unitid] and auraInstanceID then
+                    if UnitAuraInstanceID[unitid] and UnitAuraInstanceID[unitid][auraInstanceID] then
                         local aura = UnitAuraInstanceID[unitid][auraInstanceID]
                         if showbuff and aura and aura.isHelpful then
                             UnitAuraInstanceID[unitid][auraInstanceID] = nil
