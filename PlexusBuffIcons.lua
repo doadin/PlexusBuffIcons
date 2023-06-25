@@ -465,6 +465,10 @@ local function showBuffIcon(v, n, setting, icon, count, expires, duration)
                     if timeElapsed > 0.1 then
                         self.cdtext:SetText("")
                         local timeLeft = self.expires - GetTime()
+                        if timeLeft < 0 then
+                            self:Hide()
+                            return
+                        end
                         local timetext = "|cFFFFFFFF%d|r"
                         if timeLeft <= 1 then
                             timetext = "|cFFFF0000%d|r"
@@ -537,9 +541,9 @@ local function updateFrame_df(v)
 
     local filter = setting.bufffilter
 
-    if v.unit and UnitAuraInstanceID[v.unit] then
+    if v.unit and UnitAuraInstanceID[v.unitGUID] then
         local numAuras = 0
-        for instanceID, aura in pairs(UnitAuraInstanceID[v.unit]) do
+        for instanceID, aura in pairs(UnitAuraInstanceID[v.unitGUID]) do
             if n > setting.iconnum then
                 break
             end
@@ -564,7 +568,7 @@ local function updateFrame_df(v)
                 end
             end
             if numAuras == 0 then
-                UnitAuraInstanceID[v.unit] = nil
+                UnitAuraInstanceID[v.unitGUID] = nil
             end
         end
     end
@@ -577,17 +581,18 @@ function PlexusBuffIcons:UNIT_AURA(_, unitid, updatedAuras)
     -- 	if not guid then return end
     -- 	PlexusFrame:WithGUIDFrames(guid, updateFrame)
     -- else
+
+    local guid = UnitGUID(unitid)
+    if not PlexusRoster:IsGUIDInRaid(guid) then return end
+
     if unitid then
         if not UnitAuraInstanceID then
             UnitAuraInstanceID = {}
         end
-        if not UnitAuraInstanceID[unitid] then
-            UnitAuraInstanceID[unitid] = {}
+        if not UnitAuraInstanceID[guid] then
+            UnitAuraInstanceID[guid] = {}
         end
     end
-
-    local guid = UnitGUID(unitid)
-    if not PlexusRoster:IsGUIDInRaid(guid) then return end
 
     if IsRetailWow() then
         local showbuff = PlexusBuffIcons.db.profile.showbuff
@@ -600,9 +605,9 @@ function PlexusBuffIcons:UNIT_AURA(_, unitid, updatedAuras)
                 ForEachAura(unitid, "HARMFUL", nil, function(aura) unitauraInfo[aura.auraInstanceID] = aura end, true)
             end
 
-            UnitAuraInstanceID[unitid] = {}
+            UnitAuraInstanceID[guid] = {}
             for _, v in pairs(unitauraInfo) do
-                UnitAuraInstanceID[unitid][v.auraInstanceID] = v
+                UnitAuraInstanceID[guid][v.auraInstanceID] = v
             end
         end
 
@@ -612,10 +617,13 @@ function PlexusBuffIcons:UNIT_AURA(_, unitid, updatedAuras)
                     local aurainfo = GetAuraDataByAuraInstanceID(unitid, addedAuraInfo.auraInstanceID)
                     addedAuraInfo.sourceUnit = aurainfo and aurainfo.sourceUnit
                 end
+                if not UnitAuraInstanceID[guid] then
+                    UnitAuraInstanceID[guid] = {}
+                end
                 if showbuff and addedAuraInfo.isHelpful then
-                    UnitAuraInstanceID[unitid][addedAuraInfo.auraInstanceID] = addedAuraInfo
+                    UnitAuraInstanceID[guid][addedAuraInfo.auraInstanceID] = addedAuraInfo
                 elseif not showbuff and addedAuraInfo.isHarmful then
-                   UnitAuraInstanceID[unitid][addedAuraInfo.auraInstanceID] = addedAuraInfo
+                   UnitAuraInstanceID[guid][addedAuraInfo.auraInstanceID] = addedAuraInfo
                end
             end
         end
@@ -623,12 +631,21 @@ function PlexusBuffIcons:UNIT_AURA(_, unitid, updatedAuras)
 
         if updatedAuras and updatedAuras.updatedAuraInstanceIDs then
             for _, auraInstanceID in ipairs(updatedAuras.updatedAuraInstanceIDs) do
-                if UnitAuraInstanceID[unitid][auraInstanceID] then
-                    local newAura = GetAuraDataByAuraInstanceID(unitid, auraInstanceID)
-                    if showbuff and newAura and newAura.isHelpful then
-                        UnitAuraInstanceID[unitid][newAura.auraInstanceID] = newAura
-                    elseif not showbuff and newAura and newAura.isHarmful then
-                        UnitAuraInstanceID[unitid][newAura.auraInstanceID] = newAura
+                local newAura = GetAuraDataByAuraInstanceID(unitid, auraInstanceID)
+                if newAura then
+                    local oldAura = UnitAuraInstanceID[guid] and UnitAuraInstanceID[guid][auraInstanceID]
+                    if UnitAuraInstanceID[guid] and UnitAuraInstanceID[guid][auraInstanceID] then
+                        UnitAuraInstanceID[guid][oldAura.auraInstanceID] = nil
+
+                        if not UnitAuraInstanceID[guid] then
+                            UnitAuraInstanceID[guid] = {}
+                        end
+
+                        if showbuff and newAura and newAura.isHelpful then
+                            UnitAuraInstanceID[guid][newAura.auraInstanceID] = newAura
+                        elseif not showbuff and newAura and newAura.isHarmful then
+                            UnitAuraInstanceID[guid][newAura.auraInstanceID] = newAura
+                        end
                     end
                 end
             end
@@ -636,12 +653,12 @@ function PlexusBuffIcons:UNIT_AURA(_, unitid, updatedAuras)
 
         if updatedAuras and updatedAuras.removedAuraInstanceIDs then
             for _, auraInstanceID in ipairs(updatedAuras.removedAuraInstanceIDs) do
-                if UnitAuraInstanceID[unitid] and UnitAuraInstanceID[unitid][auraInstanceID] then
-                    local aura = UnitAuraInstanceID[unitid][auraInstanceID]
+                if UnitAuraInstanceID[guid] and UnitAuraInstanceID[guid][auraInstanceID] then
+                    local aura = UnitAuraInstanceID[guid][auraInstanceID]
                     if showbuff and aura and aura.isHelpful then
-                        UnitAuraInstanceID[unitid][auraInstanceID] = nil
+                        UnitAuraInstanceID[guid][auraInstanceID] = nil
                     elseif not showbuff and aura and aura.isHarmful then
-                        UnitAuraInstanceID[unitid][auraInstanceID] = nil
+                        UnitAuraInstanceID[guid][auraInstanceID] = nil
                     end
                 end
             end
