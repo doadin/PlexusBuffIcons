@@ -570,7 +570,7 @@ local function updateFrame_df(v)
                 end
             end
             if numAuras == 0 then
-                UnitAuraInstanceID[v.unit] = nil
+                UnitAuraInstanceID[v.unitGUID] = nil
             end
         end
     end
